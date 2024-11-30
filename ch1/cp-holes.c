@@ -41,5 +41,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	close(source_fd);
+	close(des_fd);
 	exit(EXIT_SUCCESS);
 }

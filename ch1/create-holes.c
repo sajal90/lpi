@@ -36,5 +36,6 @@ int main() {
 		exit(EXIT_FAILURE);
 	}
 
+	close(fd);
 	return 0;
 }
