@@ -1,14 +1,3 @@
-/*
- 	The tee command reads its standard input until end-of-file, writing a copy of the input
-	to standard output and to the file named in its command-line argument. (We show
-	an example of the use of this command when we discuss FIFOs in Section 44.7.)
-	Implement tee using I/O system calls. By default, tee overwrites any existing file with
-	the given name. Implement the –a command-line option (tee –a file), which causes tee
-	to append text to the end of a file if it already exists. (Refer to Appendix B for a
-	description of the getopt() function, which can be used to parse command-line
-	options.)
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,9 +12,19 @@ int main(int argc, char *argv[])
 	int fd = -1;
 	char *buff[MAX_SIZE];
 	int buf_size;
+	int file_idx = 1;
+	int flags = 0;
+
+	char opt;
+	if((opt = getopt(argc, argv, ":a") != -1)) {
+		printf("i am here\n");
+		file_idx = optind;
+		flags = O_APPEND;
+	}
 
 	if(argc > 1) {
-		fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		flags |= O_RDWR | O_CREAT;
+		fd = open(argv[file_idx] ,flags, S_IRUSR | S_IWUSR);
 		if(fd < 0) {
 			fprintf(stderr, "open: %s", strerror(errno));
 			exit(EXIT_FAILURE);
