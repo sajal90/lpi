@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 
 	char opt;
 	if((opt = getopt(argc, argv, ":a") != -1)) {
-		printf("i am here\n");
 		file_idx = optind;
 		flags = O_APPEND;
 	}
