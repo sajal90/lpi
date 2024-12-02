@@ -31,5 +31,8 @@ int main(int argc, char *argv[]) {
 		errExit("write");
 	}
 
+	if(close(fd) == -1) {
+		errExit("close");
+	}
 	exit(EXIT_SUCCESS);
 }
