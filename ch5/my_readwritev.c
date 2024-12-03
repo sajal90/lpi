@@ -9,25 +9,75 @@ struct iovec {
 	size_t iov_len;
 };
 
-ssize_t readv(int fd, const struct iovec *iov, int iovcnt) {
-	ssize_t len = 0;
-	ssize_t valRead;
-	for(int i=0; i<iovcnt; ++i) {
-		valRead = read(fd, iov[i].iov_base, iov[i].iov_len);
-		len += valRead;
-	}
-	
-	return len;
+void pexit(const char *fCall) {
+	perror(fCall);
+	exit(EXIT_FAILURE);
 }
-ssize_t writev(int fd, const struct iovec *iov, int iovcnt) {
-	ssize_t len = 0;
-	ssize_t valWritten;
-	for(int i=0; i<iovcnt; ++i) {
-		valWritten = write(fd, iov[i].iov_base, iov[i].iov_len);
-		len += valWritten;
+
+
+ssize_t _readv(int fd, const struct iovec *iov, int iovcnt) {
+	int i;
+	size_t memSize;
+	ssize_t numCopied, numRead;
+	void *buf;
+
+	/* Calculates all the space that will be required */
+	memSize = 0;
+	for (i = 0; i < iovcnt; ++i) {
+		memSize += iov[i].iov_len;
 	}
-	
-	return len;
+
+	buf = malloc(memSize);
+	if (buf == NULL) {
+		pexit("malloc");
+	}
+
+	/* Reads all the data from the file into the buffer */
+	numRead = read(fd, buf, memSize);
+	if (numRead == -1) {
+		return numRead;
+	}
+
+	/* Copies read that to the iovec structure */
+	numCopied = 0;
+	for (i = 0; i < iovcnt; ++i) {
+		memcpy(iov[i].iov_base, buf + numCopied, iov[i].iov_len);
+		numCopied += iov[i].iov_len;
+	}
+
+	free(buf);
+
+	return numRead;
+}
+
+ssize_t _writev(int fd, const struct iovec *iov, int iovcnt) {
+	int i;
+	size_t memSize;
+	ssize_t numCopied, numWritten;
+	void *buf;
+
+	/* Calculates all the space that will be required */
+	memSize = 0;
+	for (i = 0; i < iovcnt; ++i) {
+		memSize += iov[i].iov_len;
+	}
+
+	buf = malloc(memSize);
+	if (buf == NULL) {
+		pexit("malloc");
+	}
+
+	/* Copies data to the buffer */
+	numCopied = 0;
+	for (i = 0; i < iovcnt; ++i) {
+		memcpy(buf + numCopied, iov[i].iov_base, iov[i].iov_len);
+		numCopied += iov[i].iov_len;
+	}
+
+	numWritten = write(fd, buf, memSize);
+	free(buf);
+
+	return numWritten;
 }
 
 int main(int argc, char *argv[])
